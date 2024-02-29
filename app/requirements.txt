@@ -2,3 +2,4 @@ google-generativeai
 pypdf2
 fitz
 pymupdf
+gradio
