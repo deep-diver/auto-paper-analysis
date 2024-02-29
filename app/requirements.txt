@@ -1,4 +1,4 @@
-install google-generativeai
-install pypdf2
-install fitz
-install pymupdf
+google-generativeai
+pypdf2
+fitz
+pymupdf
