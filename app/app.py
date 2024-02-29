@@ -1,59 +1,47 @@
+import argparse
 import gradio as gr
+from paper.download import download_pdf_from_arxiv
+from paper.parser import extract_text_and_figures
+from gen.gemini import get_basic_qa
+from constants.style import STYLE
 
-STYLE = """
-.small-font{
-  font-size: 12pt !important;
-}
+def main(args):
+    filename = download_pdf_from_arxiv(args.arxiv_id)
+    texts, figures = extract_text_and_figures(filename)
+    text =' '.join(texts)
 
-.small-font:hover {
-  font-size: 20px !important;
-  transition: font-size 0.3s ease-out;
-  transition-delay: 0.3s;
-}
+    basic_qa = get_basic_qa(text, gemini_api_key=args.gemini_api, trucate=30000)
+    print(basic_qa)
 
-.group {
-  padding-left: 10px;
-  padding-right: 10px;
-  padding-bottom: 10px;
-  border: 2px dashed gray;
-  border-radius: 20px;
-  box-shadow: 5px 3px 10px 1px rgba(0, 0, 0, 0.4) !important;
-}
+    with gr.Blocks(css=STYLE) as demo:
+        gr.Markdown("hello world")
+    #   gr.Markdown(f"# {qna_json['title']}")
+    #   gr.Markdown(f"{qna_json['summary']}", elem_classes=["small-font"])
 
-.accordion > button > span{
-  font-size: 12pt !important;
-}
+    #   gr.Markdown("## Auto generated Questions & Answers")
 
-.accordion {
-  border-style: dashed !important;
-  border-left-width: 2px !important;
-  border-bottom-width: 2.5px !important;
-  border-top: none !important;
-  border-right: none !important;
-  box-shadow: none !important;
-}
-"""
+    #   for qna in qnas:
+    #     with gr.Column(elem_classes=["group"]):
+    #       gr.Markdown(f"## 🙋 {qna['question']}")
+    #       gr.Markdown(f"↪ **(ELI5)** {qna['answers']['eli5']}", elem_classes=["small-font"])
+    #       gr.Markdown(f"↪ **(Technical)** {qna['answers']['expert']}", elem_classes=["small-font"])
 
-with gr.Blocks(css=STYLE) as demo:
-  gr.Markdown(f"# {qna_json['title']}")
-  gr.Markdown(f"{qna_json['summary']}", elem_classes=["small-font"])
+    #       with gr.Accordion("Additional question #1", open=False, elem_classes=["accordion"]):
+    #         gr.Markdown(f"## 🙋🙋 {qna['additional_depth_q']['follow up question']}")
+    #         gr.Markdown(f"↪ **(ELI5)** {qna['additional_depth_q']['answers']['eli5']}", elem_classes=["small-font"])
+    #         gr.Markdown(f"↪ **(Technical)** {qna['additional_depth_q']['answers']['expert']}", elem_classes=["small-font"])
 
-  gr.Markdown("## Auto generated Questions & Answers")
+    #       with gr.Accordion("Additional question #2", open=False, elem_classes=["accordion"]):
+    #         gr.Markdown(f"## 🙋🙋 {qna['additional_breath_q']['follow up question']}")
+    #         gr.Markdown(f"↪ **(ELI5)** {qna['additional_breath_q']['answers']['eli5']}", elem_classes=["small-font"])
+    #         gr.Markdown(f"↪ **(Technical)** {qna['additional_breath_q']['answers']['expert']}", elem_classes=["small-font"])
 
-  for qna in qnas:
-    with gr.Column(elem_classes=["group"]):
-      gr.Markdown(f"## 🙋 {qna['question']}")
-      gr.Markdown(f"↪ **(ELI5)** {qna['answers']['eli5']}", elem_classes=["small-font"])
-      gr.Markdown(f"↪ **(Technical)** {qna['answers']['expert']}", elem_classes=["small-font"])
+    demo.launch(share=True)
 
-      with gr.Accordion("Additional question #1", open=False, elem_classes=["accordion"]):
-        gr.Markdown(f"## 🙋🙋 {qna['additional_depth_q']['follow up question']}")
-        gr.Markdown(f"↪ **(ELI5)** {qna['additional_depth_q']['answers']['eli5']}", elem_classes=["small-font"])
-        gr.Markdown(f"↪ **(Technical)** {qna['additional_depth_q']['answers']['expert']}", elem_classes=["small-font"])
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="auto paper analysis")
+    parser.add_argument("--gemini-api", type=str, default=None)
+    parser.add_argument("--arxiv-id", type=str)
+    args = parser.parse_args()
 
-      with gr.Accordion("Additional question #2", open=False, elem_classes=["accordion"]):
-        gr.Markdown(f"## 🙋🙋 {qna['additional_breath_q']['follow up question']}")
-        gr.Markdown(f"↪ **(ELI5)** {qna['additional_breath_q']['answers']['eli5']}", elem_classes=["small-font"])
-        gr.Markdown(f"↪ **(Technical)** {qna['additional_breath_q']['answers']['expert']}", elem_classes=["small-font"])
-
-demo.launch(share=True)
+    main(args)
