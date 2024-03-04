@@ -1,0 +1,17 @@
+[basic_qa]
+prompt = """
+come up with the 10 questions and answers that could be commonly asked by people about the following paper.
+There should be two types of answers included, one for expert and the other for ELI5.
+Your response should be recorded in a JSON format as ```json{"title": text, "summary": text, "qna": [{"question": "answers": {"eli5": text, "expert": text}}, ...]}```
+"""
+
+[deep_qa]
+prompt = """
+Paper title: %s
+Previous question: %s
+The answer on the previous question: %s
+
+Based on the previous question and answer above, and based on the paper content below, suggest follow-up question and answers in %s manner.
+There should be two types of answers included, one for expert and the other for ELI5.
+Your response should be recorded in a JSON format as ```json{"follow up question": text, "answers": {"eli5": text, "expert": text}}```
+"""
