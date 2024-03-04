@@ -7,11 +7,11 @@ Your response should be recorded in a JSON format as ```json{"title": text, "sum
 
 [deep_qa]
 prompt = """
-Paper title: %s
-Previous question: %s
-The answer on the previous question: %s
+Paper title: $title
+Previous question: $previous_question
+The answer on the previous question: $previous_answer
 
-Based on the previous question and answer above, and based on the paper content below, suggest follow-up question and answers in %s manner.
+Based on the previous question and answer above, and based on the paper content below, suggest follow-up question and answers in $tone manner.
 There should be two types of answers included, one for expert and the other for ELI5.
 Your response should be recorded in a JSON format as ```json{"follow up question": text, "answers": {"eli5": text, "expert": text}}```
 """
