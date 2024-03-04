@@ -29,3 +29,7 @@ export HF_DATASET_REPO_ID=<YOUR-HF-DATASET-REPO-ID>
 
 ./date_iterator.sh "2024-03-01" "2024-03-03" $HF_DATASET_REPO_ID
 ```
+
+## Acknowledgements
+
+This is a project built during the Gemini sprint held by Google's ML Developer Programs team. I am thankful to be granted good amount of GCP credits to finish up this project.
