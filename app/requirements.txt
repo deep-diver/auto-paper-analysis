@@ -4,3 +4,5 @@ PyMuPDF
 gradio
 requests
 toml
+datasets
+flatdict

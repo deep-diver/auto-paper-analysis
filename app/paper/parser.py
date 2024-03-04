@@ -49,7 +49,6 @@ def extract_text_and_figures(pdf_path):
 
     try:
         os.remove(pdf_path)
-        print(f"File '{pdf_path}' removed successfully.")
     except FileNotFoundError:
         print(f"File '{pdf_path}' not found.")
     except PermissionError:

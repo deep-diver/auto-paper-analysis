@@ -1,6 +1,9 @@
+import ast
 import copy
 import toml
+from string import Template
 from pathlib import Path
+from flatdict import FlatDict
 import google.generativeai as genai
 
 from gen.utils import parse_first_json_snippet
@@ -82,7 +85,7 @@ def try_out(prompt, given_text, gemini_api_key, given_image=None, retry_num=3):
             qna_json = parse_first_json_snippet(qna)
         except:
             cur_retry = cur_retry + 1
-            print("retry")
+            print("......retry")
 
     return qna_json
 
@@ -95,15 +98,19 @@ def get_basic_qa(text, gemini_api_key, trucate=7000):
 def get_deep_qa(text, basic_qa, gemini_api_key, trucate=7000):
     prompts = toml.load(Path('.') / 'constants' / 'prompts.toml')
 
+    title = basic_qa['title']
     qnas = copy.deepcopy(basic_qa['qna'])
-    title = qnas['title']
 
-    for qna in qnas:
+    for idx, qna in enumerate(qnas):
         q = qna['question']
         a_expert = qna['answers']['expert']
 
-        depth_search_prompt = prompts['deep_qa']['prompt'] % (title, q, a_expert, "in-depth")
-        breath_search_prompt = prompts['deep_qa']['prompt'] % (title, q, a_expert, "broad")
+        depth_search_prompt = Template(prompts['deep_qa']['prompt']).substitute(
+            title=title, previous_question=q, previous_answer=a_expert, tone="in-depth"
+        )
+        breath_search_prompt = Template(prompts['deep_qa']['prompt']).substitute(
+            title=title, previous_question=q, previous_answer=a_expert, tone="broad"
+        )        
 
         depth_search_response = {}
         breath_search_response = {}
@@ -125,4 +132,11 @@ def get_deep_qa(text, basic_qa, gemini_api_key, trucate=7000):
         if breath_search_response is not None:
             qna['additional_breath_q'] = breath_search_response
 
-    return qnas
+        qna = FlatDict(qna)
+        qna_tmp = copy.deepcopy(qna)
+        for k in qna_tmp:
+            value = qna.pop(k)
+            qna[f'{idx}_{k}'] = value
+        basic_qa.update(ast.literal_eval(str(qna)))
+
+    return basic_qa
